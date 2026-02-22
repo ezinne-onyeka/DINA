@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koinonia Discipleship Institute</title>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            800: '#1e40af', // Academic Blue
+                            900: '#1e3a8a', // Deep Navy
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-slate-800 font-sans antialiased">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- Mock Data & Icons ---
+        const IconBook = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
+        const IconUpload = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>;
+        const IconCalendar = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
+        const IconUsers = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>;
+
+        const INITIAL_CURRICULUM = [
+            { id: 1, title: "Foundations of Faith", type: "PDF", week: 1 },
+            { id: 2, title: "Gospel of John: Exegesis", type: "Video", week: 2 },
+            { id: 3, title: "History of the Early Church", type: "Text", week: 3 },
+        ];
+
+        const VETTED_MEDIA = [
+            { id: 1, title: "ESV Bible", type: "Text", desc: "Standard English Version", author: "Crossway" },
+            { id: 2, title: "Mere Christianity", type: "Book", desc: "Apologetics classic", author: "C.S. Lewis" },
+            { id: 3, title: "The Cost of Discipleship", type: "Book", desc: "Theology", author: "Dietrich Bonhoeffer" },
+            { id: 4, title: "Sermon on the Mount", type: "Audio", desc: "Audio dramatization", author: "Institute Media" },
+        ];
+
+        const EVENTS = [
+            { id: 1, date: "Oct 12", title: "Faculty Symposium", time: "10:00 AM" },
+            { id: 2, date: "Oct 15", title: "Student Worship Night", time: "7:00 PM" },
+            { id: 3, date: "Oct 20", title: "Theology Thesis Deadline", time: "11:59 PM" },
+        ];
+
+        // --- Main App Component ---
+        function App() {
+            const [activeTab, setActiveTab] = useState('student'); // student, teacher, media, calendar
+            const [curriculum, setCurriculum] = useState(INITIAL_CURRICULUM);
+            const [notes, setNotes] = useState([]); // Shared notes between student/teacher
+
+            // Handles uploading new curriculum (Mock)
+            const handleUpload = (newItem) => {
+                setCurriculum([...curriculum, { ...newItem, id: Date.now() }]);
+            };
+
+            // Handles adding a note
+            const handleAddNote = (note) => {
+                setNotes([{ ...note, id: Date.now(), date: new Date().toLocaleDateString() }, ...notes]);
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col bg-gray-50">
+                    {/* Header */}
+                    <header className="bg-brand-900 text-white shadow-lg">
+                        <div className="max-w-6xl mx-auto px-4 py-6">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <h1 className="text-3xl font-serif font-bold tracking-wide">KOINONIA</h1>
+                                    <p className="text-brand-100 text-sm tracking-wider uppercase">Discipleship Institute</p>
+                                </div>
+                                <nav className="flex space-x-1 bg-brand-800 p-1 rounded-lg">
+                                    {['student', 'teacher', 'media', 'calendar'].map((tab) => (
+                                        <button
+                                            key={tab}
+                                            onClick={() => setActiveTab(tab)}
+                                            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                                                activeTab === tab 
+                                                ? 'bg-white text-brand-900 shadow-sm' 
+                                                : 'text-brand-100 hover:text-white hover:bg-brand-700'
+                                            }`}
+                                        >
+                                            {tab.charAt(0).toUpperCase() + tab.slice(1)} Portal
+                                        </button>
+                                    ))}
+                                </nav>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Main Content */}
+                    <main className="flex-grow max-w-6xl mx-auto px-4 py-8 w-full">
+                        {activeTab === 'student' && (
+                            <StudentView 
+                                curriculum={curriculum} 
+                                onAddNote={handleAddNote}
+                                notes={notes}
+                            />
+                        )}
+                        {activeTab === 'teacher' && (
+                            <TeacherView 
+                                curriculum={curriculum} 
+                                onUpload={handleUpload} 
+                                notes={notes}
+                            />
+                        )}
+                        {activeTab === 'media' && <MediaLibrary />}
+                        {activeTab === 'calendar' && <SchoolCalendar />}
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-slate-900 text-slate-400 py-8 mt-12">
+                        <div className="max-w-6xl mx-auto px-4 text-center">
+                            <p className="font-serif italic">"Go therefore and make disciples of all nations..."</p>
+                            <p className="text-sm mt-2">&copy; 2024 Koinonia Discipleship Institute. All rights reserved.</p>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        // --- Sub-Components ---
+
+        function StudentView({ curriculum, onAddNote, notes }) {
+            const [noteText, setNoteText] = useState("");
+
+            return (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {/* Left: Curriculum Access */}
+                    <div className="md:col-span-2 space-y-6">
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <h2 className="text-2xl font-serif text-brand-900 mb-4 border-b pb-2">My Curriculum</h2>
+                            <div className="space-y-4">
+                                {curriculum.map((item) => (
+                                    <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-md hover:bg-blue-50 transition border border-gray-100">
+                                        <div className="flex items-center space-x-4">
+                                            <div className="h-10 w-10 bg-brand-100 text-brand-800 rounded-full flex items-center justify-center font-bold">
+                                                {item.week}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-gray-800">{item.title}</h3>
+                                                <span className="text-xs font-medium text-gray-500 uppercase tracking-wide bg-gray-200 px-2 py-0.5 rounded">{item.type}</span>
+                                            </div>
+                                        </div>
+                                        <button className="text-brand-500 hover:text-brand-700 font-medium text-sm">Access &rarr;</button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right: Notes to Teacher */}
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <h2 className="text-xl font-serif text-brand-900 mb-4">Questions & Notes</h2>
+                            <div className="space-y-4 mb-4 h-64 overflow-y-auto pr-2">
+                                {notes.length === 0 && <p className="text-gray-400 text-sm italic">No notes yet.</p>}
+                                {notes.map(note => (
+                                    <div key={note.id} className="bg-yellow-50 p-3 rounded border border-yellow-100 text-sm">
+                                        <p className="text-gray-800">{note.text}</p>
+                                        <div className="flex justify-between mt-2 text-xs text-gray-400">
+                                            <span>{note.author}</span>
+                                            <span>{note.date}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="space-y-2">
+                                <textarea 
+                                    className="w-full border border-gray-300 rounded p-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"
+                                    rows="3"
+                                    placeholder="Ask a question..."
+                                    value={noteText}
+                                    onChange={(e) => setNoteText(e.target.value)}
+                                ></textarea>
+                                <button 
+                                    onClick={() => {
+                                        if(!noteText) return;
+                                        onAddNote({ text: noteText, author: "Student" });
+                                        setNoteText("");
+                                    }}
+                                    className="w-full bg-brand-800 text-white py-2 rounded text-sm font-medium hover:bg-brand-900"
+                                >
+                                    Send to Teacher
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function TeacherView({ curriculum, onUpload, notes }) {
+            const [newTitle, setNewTitle] = useState("");
+            
+            return (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {/* Left: Management */}
+                    <div className="md:col-span-2 space-y-6">
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div className="flex justify-between items-center mb-6 border-b pb-4">
+                                <h2 className="text-2xl font-serif text-brand-900">Curriculum Management</h2>
+                            </div>
+                            
+                            {/* Upload Form */}
+                            <div className="bg-blue-50 p-6 rounded-lg border border-blue-100 mb-8">
+                                <h3 className="font-semibold text-brand-900 mb-4 flex items-center">
+                                    <IconUpload /> <span className="ml-2">Upload New Material</span>
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <input 
+                                        type="text" 
+                                        placeholder="Lesson Title" 
+                                        className="col-span-2 p-2 border rounded"
+                                        value={newTitle}
+                                        onChange={e => setNewTitle(e.target.value)}
+                                    />
+                                    <select className="p-2 border rounded">
+                                        <option>Text</option>
+                                        <option>Video</option>
+                                        <option>Audio</option>
+                                    </select>
+                                    <button 
+                                        onClick={() => {
+                                            if(!newTitle) return;
+                                            onUpload({ title: newTitle, type: "PDF", week: curriculum.length + 1 });
+                                            setNewTitle("");
+                                        }}
+                                        className="bg-brand-600 text-white rounded font-medium hover:bg-brand-700"
+                                    >
+                                        Upload
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Current List */}
+                            <h3 className="font-serif text-lg text-gray-700 mb-3">Active Curriculum</h3>
+                            <table className="min-w-full text-sm">
+                                <thead className="bg-gray-100 text-gray-600">
+                                    <tr>
+                                        <th className="py-2 px-4 text-left">Wk</th>
+                                        <th className="py-2 px-4 text-left">Title</th>
+                                        <th className="py-2 px-4 text-left">Type</th>
+                                        <th className="py-2 px-4 text-left">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y">
+                                    {curriculum.map((c) => (
+                                        <tr key={c.id}>
+                                            <td className="py-3 px-4 text-gray-500">{c.week}</td>
+                                            <td className="py-3 px-4 font-medium text-gray-800">{c.title}</td>
+                                            <td className="py-3 px-4 text-gray-500">{c.type}</td>
+                                            <td className="py-3 px-4 text-green-600">Published</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* Right: Student Queries */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 h-fit">
+                        <h2 className="text-xl font-serif text-brand-900 mb-4 flex items-center">
+                            <IconUsers /> <span className="ml-2">Student Inquiries</span>
+                        </h2>
+                        <div className="space-y-4">
+                            {notes.length === 0 && <p className="text-gray-400 text-sm">No new questions.</p>}
+                            {notes.map((note) => (
+                                <div key={note.id} className="border-l-4 border-brand-500 bg-gray-50 p-3 text-sm">
+                                    <p className="text-gray-800 italic">"{note.text}"</p>
+                                    <p className="text-gray-500 text-xs mt-2">— {note.author}, {note.date}</p>
+                                    <button className="text-blue-600 text-xs mt-2 hover:underline">Reply</button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function MediaLibrary() {
+            const [filter, setFilter] = useState("All");
+
+            return (
+                <div className="space-y-6">
+                    <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 text-center">
+                        <h2 className="text-3xl font-serif text-brand-900 mb-2">Vetted Christian Media</h2>
+                        <p className="text-gray-500 max-w-2xl mx-auto">Access our curated library of theological texts, sermons, and apologetics resources.</p>
+                        
+                        <div className="flex justify-center space-x-4 mt-8">
+                            {["All", "Book", "Text", "Audio"].map(f => (
+                                <button 
+                                    key={f} 
+                                    onClick={() => setFilter(f)}
+                                    className={`px-6 py-1 rounded-full text-sm border ${
+                                        filter === f ? "bg-brand-800 text-white border-brand-800" : "bg-white text-gray-600 border-gray-300 hover:border-brand-500"
+                                    }`}
+                                >
+                                    {f}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {VETTED_MEDIA.filter(m => filter === "All" || m.type === filter).map(item => (
+                            <div key={item.id} className="bg-white rounded border border-gray-200 p-6 flex items-start space-x-4 hover:shadow-md transition">
+                                <div className="bg-brand-50 p-3 rounded text-brand-700">
+                                    <IconBook />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-gray-800 text-lg">{item.title}</h3>
+                                    <p className="text-sm text-gray-500">{item.author}</p>
+                                    <p className="text-sm text-gray-600 mt-2">{item.desc}</p>
+                                    <button className="mt-3 text-sm font-semibold text-brand-600 hover:text-brand-800">Read / View</button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        function SchoolCalendar() {
+            return (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+                     <h2 className="text-2xl font-serif text-brand-900 mb-6 flex items-center border-b pb-4">
+                        <IconCalendar /> <span className="ml-3">Academic Calendar</span>
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-700 mb-4">Upcoming Events</h3>
+                            <div className="space-y-6">
+                                {EVENTS.map(event => (
+                                    <div key={event.id} className="flex">
+                                        <div className="flex-shrink-0 w-16 text-center">
+                                            <span className="block text-sm font-bold text-brand-600 uppercase">{event.date.split(" ")[0]}</span>
+                                            <span className="block text-2xl font-bold text-gray-800">{event.date.split(" ")[1]}</span>
+                                        </div>
+                                        <div className="ml-4 pb-6 border-b border-gray-100 w-full">
+                                            <h4 className="text-lg font-medium text-gray-900">{event.title}</h4>
+                                            <p className="text-sm text-gray-500">{event.time} • Campus Main Hall</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="bg-gray-50 rounded p-6 border border-gray-200">
+                            <h3 className="text-lg font-semibold text-gray-700 mb-4">Important Dates</h3>
+                            <ul className="list-disc list-inside text-gray-600 space-y-2">
+                                <li><strong>Nov 1:</strong> Spring Registration Opens</li>
+                                <li><strong>Nov 24:</strong> Thanksgiving Break</li>
+                                <li><strong>Dec 10:</strong> Finals Week Begins</li>
+                                <li><strong>Dec 20:</strong> Winter Commencement</li>
+                            </ul>
+                            <div className="mt-8 p-4 bg-brand-50 border border-brand-100 rounded text-brand-800 text-sm">
+                                <p><strong>Note:</strong> Faculty meetings are held every Tuesday at 9:00 AM in the Conference Room.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
