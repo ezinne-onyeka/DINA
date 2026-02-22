@@ -69,7 +69,7 @@
 
         // --- Main App Component ---
         function App() {
-            const [activeTab, setActiveTab] = useState('student'); // student, teacher, media, calendar
+            const [activeTab, setActiveTab] = useState('about'); // student, teacher, media, calendar
             const [curriculum, setCurriculum] = useState(INITIAL_CURRICULUM);
             const [notes, setNotes] = useState([]); // Shared notes between student/teacher
 
@@ -94,7 +94,7 @@
                                     <p className="text-brand-100 text-sm tracking-wider uppercase">Discipleship Institute</p>
                                 </div>
                                 <nav className="flex space-x-1 bg-brand-800 p-1 rounded-lg">
-                                    {['student', 'teacher', 'media', 'calendar'].map((tab) => (
+                                    {['about', 'student', 'teacher', 'media', 'calendar'].map((tab) => (
                                         <button
                                             key={tab}
                                             onClick={() => setActiveTab(tab)}
@@ -114,6 +114,7 @@
 
                     {/* Main Content */}
                     <main className="flex-grow max-w-6xl mx-auto px-4 py-8 w-full">
+                        {activeTab === 'about' && <AboutView />}
                         {activeTab === 'student' && (
                             <StudentView 
                                 curriculum={curriculum} 
@@ -145,6 +146,72 @@
 
         // --- Sub-Components ---
 
+        function AboutView() {
+            const PROGRAMMES = [
+                { title: "Certificate in Biblical Foundations", duration: "12 Weeks", desc: "A rigorous introduction to scriptural exegesis, hermeneutics, and core Christian doctrine." },
+                { title: "Diploma in Christian Leadership", duration: "1 Year", desc: "Equipping future leaders with pastoral care skills, organizational leadership, and deep theological grounding." },
+                { title: "Advanced Discipleship Training", duration: "6 Months", desc: "Intensive spiritual formation focused on personal growth, evangelism, and making disciples in the modern world." }
+            ];
+        
+            const FACULTY = [
+                { name: "Dr. Sarah Jenkins", role: "Professor of Theology", specialty: "Early Church History" },
+                { name: "Rev. Michael Osei", role: "Director of Discipleship", specialty: "Pastoral Ministries" },
+                { name: "Prof. David Chen", role: "Apologetics Instructor", specialty: "Contemporary Apologetics" }
+            ];
+        
+            return (
+                <div className="space-y-12">
+                    {/* Mission & Vision */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 md:p-12 text-center relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-2 bg-brand-500"></div>
+                        <h2 className="text-3xl font-serif text-brand-900 mb-6">Our Mission & Vision</h2>
+                        <div className="max-w-3xl mx-auto space-y-6 text-gray-700">
+                            <p className="text-lg">
+                                <strong className="text-brand-800">Vision:</strong> To see every nation transformed by the power of the Gospel through dedicated, well-equipped, and spiritually mature disciples of Jesus Christ.
+                            </p>
+                            <p className="text-lg">
+                                <strong className="text-brand-800">Mission:</strong> Koinonia Discipleship Institute exists to provide rigorous theological education, deep spiritual formation, and practical ministry training to Christians worldwide, empowering them to fulfill the Great Commission.
+                            </p>
+                        </div>
+                    </div>
+
+            {/* Academic Programmes */}
+            <div>
+                <h2 className="text-2xl font-serif text-brand-900 mb-6 border-b pb-2">Academic Programmes</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {PROGRAMMES.map((prog, idx) => (
+                        <div key={idx} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 hover:border-brand-300 transition-colors">
+                            <h3 className="text-xl font-bold text-gray-800 mb-2">{prog.title}</h3>
+                            <span className="inline-block bg-brand-50 text-brand-800 text-xs font-semibold px-2 py-1 rounded mb-4 uppercase tracking-wide">
+                                {prog.duration}
+                            </span>
+                            <p className="text-sm text-gray-600 leading-relaxed">{prog.desc}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Faculty & Leadership */}
+            <div>
+                <h2 className="text-2xl font-serif text-brand-900 mb-6 border-b pb-2">Our Faculty</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                    {FACULTY.map((member, idx) => (
+                        <div key={idx} className="flex flex-col items-center text-center bg-gray-50 p-6 rounded-lg border border-gray-200">
+                            {/* Placeholder Avatar */}
+                            <div className="w-20 h-20 bg-brand-200 text-brand-800 rounded-full flex items-center justify-center text-2xl font-serif font-bold mb-4 shadow-inner">
+                                {member.name.charAt(0)}
+                            </div>
+                            <h3 className="font-bold text-gray-900 text-lg">{member.name}</h3>
+                            <p className="text-brand-600 font-medium text-sm">{member.role}</p>
+                            <p className="text-gray-500 text-sm mt-2 italic">{member.specialty}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+        
         function StudentView({ curriculum, onAddNote, notes }) {
             const [noteText, setNoteText] = useState("");
 
@@ -392,3 +459,4 @@
 </body>
 
 </html>
+
