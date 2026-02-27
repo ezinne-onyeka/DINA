@@ -72,7 +72,7 @@
             const [activeTab, setActiveTab] = useState('about'); // student, teacher, media, calendar
             const [curriculum, setCurriculum] = useState(INITIAL_CURRICULUM);
             const [notes, setNotes] = useState([]); // Shared notes between student/teacher
-
+    const [auth, setAuth] = useState({ student: false, teacher: false });
             // Handles uploading new curriculum (Mock)
             const handleUpload = (newItem) => {
                 setCurriculum([...curriculum, { ...newItem, id: Date.now() }]);
@@ -82,7 +82,20 @@
             const handleAddNote = (note) => {
                 setNotes([{ ...note, id: Date.now(), date: new Date().toLocaleDateString() }, ...notes]);
             };
+const handleLogin = (role, password) => {
+        const passwords = { student: '[PASSWORD]', teacher: 'teacher123' };
+        if (password === passwords[role]) {
+            setAuth(prev => ({ ...prev, [role]: true }));
+            return true;
+        }
+        return false;
+    };
 
+    const handleLogout = (role) => {
+        setAuth(prev => ({ ...prev, [role]: false }));
+    };
+
+    return (
             return (
                 <div className="min-h-screen flex flex-col bg-gray-50">
                     {/* Header */}
@@ -458,6 +471,7 @@
 </body>
 
 </html>
+
 
 
 
