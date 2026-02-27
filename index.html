@@ -103,7 +103,7 @@
                                                 : 'text-brand-100 hover:text-white hover:bg-brand-700'
                                             }`}
                                         >
-                                            {tab.charAt(0).toUpperCase() + tab.slice(1)} Portal
+{tab.charAt(0).toUpperCase() + tab.slice(1)}{(tab === 'student' || tab === 'teacher') ? ' Portal' : ''}
                                         </button>
                                     ))}
                                 </nav>
@@ -458,6 +458,7 @@
 </body>
 
 </html>
+
 
 
 
